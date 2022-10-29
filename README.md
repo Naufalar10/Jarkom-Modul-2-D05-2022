@@ -558,7 +558,7 @@ Lakukan konfigurasi pada file `default-wise-6.conf` di dalam node 'Eden' dengan 
 ```
 Copy file dengan command cp `/root/default-wise-6.conf /etc/apache2/sites-available/eden.wise.d05.com.conf` lalu restart apache dengan `service apache2 restrat`.
 
-Lakukan testing pada node client (Garden dan SSS) ketika mengakses `lynx http://www.eden.wise.d05.com/js`, maka akan mendapatkan tampilan seperti berikut.
+Lakukan testing pada node client (Garden dan SSS) ketika mengakses `lynx http://www.eden.wise.d05.com/js`.
 
 ## Soal 14
 
@@ -675,8 +675,6 @@ Ketika web server `strix.operation.wise.d05.com` diakses, akan diminta authentik
 
 Input username `Twilight` dan `password opStrix`.
 
-Kemudian akan menampilakn hasil berikut.
-
 ## Soal 16
 
 #### dan setiap kali mengakses IP Eden akan dialihkan secara otomatis ke www.wise.yyy.com.
@@ -757,4 +755,4 @@ Konfigurasi pada file `default-wise-7.conf` sebagai berikut.
 
 Copy file dengan command `cp /root/default-wise-7.conf /etc/apache2/sites-available/eden.wise.d05.com.conf` lalu restart apache dengan `service apache2 restart`.
 
-Testing pada node client (Garden dan SSS) dengan command `lynx www.eden.wise.d05.com/public/images/abcedendef`, maka akan muncul tampilan berikut.
+Testing pada node client (Garden dan SSS) dengan command `lynx www.eden.wise.d05.com/public/images/abcedendef`.
