@@ -23,6 +23,13 @@ echo "nameserver 192.168.122.1" > /etc/resolv.conf
 Lalu lakukan tes koneksi dengan ```ping google.com -c 3```
 
 Maka hasilnya seperti ini :
+![1.1](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar1.1.png)
+![1.2](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar1.2.png)
+![1.3](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar1.3.png)
+![1.4](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar1.4.png)
+![1.5](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar1.5.png)
+![1.6](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar1.6.png)
+
 
 
 ## 2
@@ -83,8 +90,8 @@ host -t CNAME www.wise.d05.com
 ```
 
 Hasilnya seperti yang dibawah ini :
-
-
+![2.1](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar2.1.png)
+![2.2](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar2.2.png)
 
 ## 3
 #### Setelah itu ia juga ingin membuat subdomain eden.wise.yyy.com dengan alias www.eden.wise.yyy.com yang diatur DNS-nya di WISE dan mengarah ke Eden. ####
@@ -121,6 +128,9 @@ Lakukan tes ping di SSS dan Garden Maka akan didapatkan hasil sebagai berikut :
 ping eden.wise.d05.com -c 3
 host -t CNAME www.eden.wise.d05.com
 ```
+
+![3.1](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar3.1.png)
+![3.2](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar3.2.png)
 
 
 
@@ -174,6 +184,10 @@ apt-get install dnsutils
 host -t PTR 192.187.3.2
 ```
 
+![4.1](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar4.1.png)
+![4.1](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar4.1.png)
+
+
 ## 5
 #### Agar dapat tetap dihubungi jika server WISE bermasalah, buatlah juga Berlint sebagai DNS Slave untuk domain utama. ####
 ### Penyelesaian ###
@@ -225,6 +239,10 @@ Lalu kita tes dengan pertama menjalankan file ``` tes.sh ``` yang isinya ``` ser
 cp soal5/resolv.conf /etc/resolv.conf
 ping wise.d05.com -c 3
 ```
+
+![5.1](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar5.1.png)
+![5.2](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar5.2.png)
+
 
 
 ## 6
@@ -365,6 +383,11 @@ Lakukan tes ping di SSS dan Garden sebagai berikut :
 ping operation.wise.d05.com -c 3
 ping www.operation.wise.d05.com -c 3
 ```
+
+![6.1](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar6.1.png)
+![6.2](https://github.com/Naufalar10/Jarkom-Modul-2-D05-2022/blob/main/jarkom_2/gambar6.2.png)
+
+
 ## 7
 ## 8
 ## 9
