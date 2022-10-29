@@ -1,11 +1,370 @@
-# Jarkom-Modul-2-D05-2022
+# Lapres Jarkom Modul 2 Kelompok D05 #
+
+| Nama Praktikan  | NRP Praktikan |
+| ------------- | ------------- |
+| Ichlasul Hasanat  | 5025201091  |
+| Haidar Fico Ramadhan Aryputra | 5025201185  |
+| Naufal Ariq Putra Yosyam | 5025201112 |
 
 ## 1
+#### WISE akan dijadikan sebagai DNS Master, Berlint akan dijadikan DNS Slave, dan Eden akan digunakan sebagai Web Server. Terdapat 2 Client yaitu SSS, dan Garden. Semua node terhubung pada router Ostania, sehingga dapat mengakses internet . ####
+### Penyelesaian ###
+
+Pertama Kita buka .bashrc di semua node lalu masukkan code seperti di bawah ini: 
+### Ostania
+```
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 192.187.0.0/16
+```
+### WISE DAN YANG LAIN-LAIN
+```
+echo "nameserver 192.168.122.1" > /etc/resolv.conf
+```
+
+Lalu lakukan tes koneksi dengan ```ping google.com -c 3```
+
+Maka hasilnya seperti ini :
+
+
 ## 2
+#### Untuk mempermudah mendapatkan informasi mengenai misi dari Handler, bantulah Loid membuat website utama dengan akses wise.yyy.com dengan alias www.wise.yyy.com pada folder wise. ####
+
+### Penyelesain ###
+
+Pertama kita membuat file named.conf.local dan wise.d05.com pada root node WISE dengan isi sebagai berikut:
+#### named.conf.local ####
+```
+zone "wise.d05.com" {
+        type master;
+        file "/etc/bind/wise/wise.d05.com";
+};
+```
+
+#### wise.d05.com ####
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     wise.d05.com. root.wise.d05.com. (
+                        4               ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      wise.d05.com.
+@       IN      A       192.187.3.2
+www     IN      CNAME   wise.d05.com.
+```
+Lalu kemudian kita buat script ```soal2.sh``` yang isinya sebagai berikut :
+```
+ apt-get update
+ apt-get install bind9 -y
+
+cp soal2/named.conf.local /etc/bind/named.conf.local
+
+mkdir /etc/bind/wise
+
+cp soal2/wise.d05.com /etc/bind/wise/wise.d05.com
+```
+
+Lalu di client SSS daan Garden tambahkan nameserver di file resolv.conf lalu  lakukan tes dengan script dibawah ini :
+### resolv.conf ###
+```
+nameserver 192.187.3.2 // ip wise
+nameserver 192.168.122.1 // ip dns
+```
+### soal2.sh ###
+```
+cp soal2/resolv.conf /etc/resolv.conf
+
+ping wise.d05.com -c 5
+host -t CNAME www.wise.d05.com
+```
+
+Hasilnya seperti yang dibawah ini :
+
+
+
 ## 3
+#### Setelah itu ia juga ingin membuat subdomain eden.wise.yyy.com dengan alias www.eden.wise.yyy.com yang diatur DNS-nya di WISE dan mengarah ke Eden. ####
+### Penyelesaian ###
+
+Pertama kita buat folder soal3 yang isinya file wise.d05.com di WISE dengan isi sebagai berikut :
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     wise.d05.com. root.wise.d05.com. (
+                        4               ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      wise.d05.com.
+@       IN      A       192.187.3.2
+www     IN      CNAME   wise.d05.com.
+eden    IN      A       192.187.2.3
+www.eden IN     CNAME   eden.wise.d05.com
+```
+
+Lalu kita buat script ``` soal3.sh ``` di WISE untuk membuat subdomain seperti berikut:
+```
+cp soal3/wise.d05.com /etc/bind/wise/wise.d05.com
+service bind9 restart
+```
+
+Lakukan tes ping di SSS dan Garden Maka akan didapatkan hasil sebagai berikut :
+```
+ping eden.wise.d05.com -c 3
+host -t CNAME www.eden.wise.d05.com
+```
+
+
+
 ## 4
+#### Buat juga reverse domain untuk domain utama. ####
+### Penyelesaian ###
+Buat 2 file di dalam folder soal4 pada node WISE yang isinya sebagai berikut :
+### named.conf.local ###
+```
+zone "wise.d05.com" {
+        type master;
+        file "/etc/bind/wise/wise.d05.com";
+};
+
+zone "3.187.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/wise/3.187.192.in-addr.arpa";
+};
+```
+
+### 3.187.192.in-addr.arpa ###
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     wise.d05.com. root.wise.d05.com. (
+                        2               ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+3.187.192.in-addr.arpa. IN      NS      wise.d05.com.
+2                       IN      PTR     wise.d05.com.
+```
+
+Lalu kita buat script ``` soal4.sh``` yang isinya sebagai berikut :
+```
+cp soal4/named.conf.local /etc/bind/named.conf.local
+cp soal4/3.187.192.in-addr.arpa /etc/bind/wise/3.187.192.in-addr.arpa
+service bind9 restart
+```
+
+Lalu lakukan tes di Client SSS dan Garden sebagai berikut :
+```
+apt-get update
+apt-get install dnsutils
+
+
+host -t PTR 192.187.3.2
+```
+
 ## 5
+#### Agar dapat tetap dihubungi jika server WISE bermasalah, buatlah juga Berlint sebagai DNS Slave untuk domain utama. ####
+### Penyelesaian ###
+
+Pertama kita buat folder Soal5 yang isinya file named.conf.local pada WISE dengan isi sebagai berikut :
+```
+zone "wise.d05.com" {
+    type master;
+    notify yes;
+    also-notify { 192.187.2.2; };
+    allow-transfer { 192.187.2.2; }; // Masukan IP berlint
+    file "/etc/bind/wise/wise.d05.com";
+};
+
+zone "3.187.192.in-addr.arpa"{
+        type master;
+        file "/etc/bind/wise/3.187.192.in-addr.arpa";
+
+}
+```
+
+Lalu kita buat script ``` soal5.sh ``` untuk menambahkan konfigurasi Berlint dengan isi sebagai berikut :
+```
+cp soal5/named.conf.local /etc/bind/named.conf.local
+
+service bind9 restart
+```
+
+Kita buat folder soal5 yang isinya file named.conf.local pada Berlint yang isinya sebagai berikut :
+```
+zone "wise.d05.com" {
+    type slave;
+    masters { 192.187.3.2; }; // Masukan IP EniesLobby tanpa tanda petik
+    file "/var/lib/bind/wise.d05.com";
+};
+```
+
+Lalu buat script ``` soal5.sh ``` di Berlint sebagai berikut :
+```
+apt-get update
+apt-get install bind9 -y
+
+cp soal5/named.conf.local /etc/bind/named.conf.local
+service bind9 restart
+```
+
+Lalu kita tes dengan pertama menjalankan file ``` tes.sh ``` yang isinya ``` service bind9 stop ``` Kemudian coba ping di Client SSS dan Garden sebagai berikut :
+```
+cp soal5/resolv.conf /etc/resolv.conf
+ping wise.d05.com -c 3
+```
+
+
 ## 6
+#### Karena banyak informasi dari Handler, buatlah subdomain yang khusus untuk operation yaitu operation.wise.yyy.com dengan alias www.operation.wise.yyy.com yang didelegasikan dari WISE ke Berlint dengan IP menuju ke Eden dalam folder operation. ####
+
+### Penyelesaian ###
+Di WISE buat folder soal6 yang isinya file named.conf.options dan wise.d05.com yang isinya sebagai berikut :
+### named.conf.options ###
+```
+options {
+        directory "/var/cache/bind";
+
+        // If there is a firewall between you and nameservers you want
+        // to talk to, you may need to fix the firewall to allow multiple
+        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+
+        // If your ISP provided one or more IP addresses for stable 
+        // nameservers, you probably want to use them as forwarders.  
+        // Uncomment the following block, and insert the addresses replacing 
+        // the all-0's placeholder.
+
+        // forwarders {
+        //      0.0.0.0;
+        // };
+
+        //========================================================================
+        // If BIND logs error messages about the root key being expired,
+        // you will need to update your keys.  See https://www.isc.org/bind-keys
+        //========================================================================
+        // dnssec-validation auto;
+        allow-query{any;};
+
+        auth-nxdomain no;    # conform to RFC1035
+        listen-on-v6 { any; };
+};
+```
+### wise.d05.com ###
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     wise.d05.com. root.wise.d05.com. (
+                        4               ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      wise.d05.com.
+@       IN      A       192.187.3.2
+www     IN      CNAME   wise.d05.com. 
+eden    IN      A       192.187.2.3
+www.eden IN     CNAME   eden.wise.d05.com.
+ns1     IN      A       192.187.2.2 
+operation IN    NS      ns1 
+```
+
+Lalu buat script ``` soal6.sh ``` untuk menambahkan delegasi subdomain berupa operation serta meng-allow semua query dengan isian sebagai berikut :
+```
+cp soal6/named.conf.options /etc/bind/named.conf.options
+cp soal6/wise.d05.com /etc/bind/wise/wise.d05.com
+
+service bind9 restart
+```
+
+Lalu di Berlint kita buat folder soal6 yang isinya named.conf.local, named.conf.options, operation.wise.d05.com dengan isi sebagai berikut :
+### named.conf.options ###
+```
+options {
+        directory "/var/cache/bind";
+
+        // If there is a firewall between you and nameservers you want
+        // to talk to, you may need to fix the firewall to allow multiple
+        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+
+        // If your ISP provided one or more IP addresses for stable 
+        // nameservers, you probably want to use them as forwarders.  
+        // Uncomment the following block, and insert the addresses replacing 
+        // the all-0's placeholder.
+
+        // forwarders {
+        //      0.0.0.0;
+        // };
+
+        //========================================================================
+        // If BIND logs error messages about the root key being expired,
+        // you will need to update your keys.  See https://www.isc.org/bind-keys
+        //========================================================================
+        // dnssec-validation auto;
+        allow-query{any;};
+
+        auth-nxdomain no;    # conform to RFC1035
+        listen-on-v6 { any; };
+};
+```
+
+### named.conf.local ###
+```
+zone "operation.wise.d05.com" {
+    type master;
+    file "/etc/bind/operation/operation.wise.d05.com";
+};
+```
+
+### operation.wise.d05.com
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     operation.wise.d05.com. root.operation.wise.d05.com. (
+                        4               ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      operation.wise.d05.com.
+@       IN      A       192.187.2.3
+www     IN      CNAME   operation.wise.d05.com.
+```
+
+Lalu buat script ``` soal6.sh ``` yang isinya sebagai berikut :
+```
+cp soal6/named.conf.local /etc/bind/named.conf.local
+
+mkdir /etc/bind/operation
+
+cp soal6/operation.wise.d05.com /etc/bind/operation/operation.wise.d05.com
+
+cp soal6/named.conf.options /etc/bind/named.conf.options
+
+service bind9 restart
+```
+Lakukan tes ping di SSS dan Garden sebagai berikut :
+```
+ping operation.wise.d05.com -c 3
+ping www.operation.wise.d05.com -c 3
+```
 ## 7
 ## 8
 ## 9
