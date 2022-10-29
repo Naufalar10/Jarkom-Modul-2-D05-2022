@@ -389,11 +389,145 @@ ping www.operation.wise.d05.com -c 3
 
 
 ## 7
+Pertama, kita membuat file operation-2wise.d05.com pada node Berlint dengan isi sebagai berikut.
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     operation.wise.d05.com. root.operation.wise.d05.com. (
+                        2022100601      ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      operation.wise.d05.com.
+@       IN      A       10.8.2.3
+www     IN      CNAME   operation.wise.d05.com.
+strix   IN      A       10.8.2.3
+www.strix IN    CNAME   strix.operation.wise.d05.com.
+```
+Setelah itu kita membuat script untuk mencopy file tersebut ke dalam directory yang benar:
+```
+cp /root/operation-2.wise.d05.com /etc/bind/operation/operation.wise.d05.com
+
+service bind9 restart
+```
+Lalu, kita lakukan tes pada client SSS melalui ping strix.operation.wise.d05.com -c 3 dan ping www.strix.operation.wise.d05.com -c 3.
 ## 8
+Pertama kita install lynx dengan apt pada SSS dan garden. Lalu, Apache, php, openssl, git, dan unzip pada eden. Lalu kita clone repo yang dibutuhkan dengan `git clone https://github.com/Naufalar/modul2source-jarkom.git`. Lalu kita unzip dengan command `unzip -o /root/modul2source-jarkom/\*.zip -d /root/modul2source-jarkom`.
+
+Lalu kita akan menyalin file default-wise-1.conf ke wise.d05.com.conf dengan perintah cp /root/default-wise-1.conf /etc/apache2/sites-available/wise.d05.com.conf.
+
+Kemudian aktifkan website dengan a2ensite wise.d05.com, lalu buat direktori var/www/wise.d05.com dengan perintah mkdir /var/www/wise.d05.com dan copy file dengan perintah cp /root/wise.d05.com/index.php /var/www/wise.d05.com. Lalu restart server apache
+
+Dapat dites dengan  node SSS dengan lynx http://www.wise.d05.com atau lynx http://www.wise.d05.com/index.php:
+<img width="420" alt="Screen Shot 2022-10-29 at 22 12 49" src="https://user-images.githubusercontent.com/7030663/198839178-7f2f4dcb-ef4b-4578-8213-0572aa4943a6.png">
+
+
 ## 9
+Pada node Eden, copy semua file di folder wise yang sudah diunzip `cp -r /root/modul2source-jarkom/wise/. /var/www/wise.d05.com`, lalu copy konfigurasi file wise.d05.com.conf `cp /root/default-wise-2.conf /etc/apache2/sites-available/wise.d05.com.conf` isi default-wise-2.conf sebagai berikut:
+```
+<VirtualHost *:80>
+        ServerName wise.b10.com
+        ServerAlias www.wise.b10.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/wise.b10.com
+
+        Alias "/home" "/var/www/wise.b10.com/index.php/home"
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+Restart apache lalu dengan lynx open website dalam Garden
+![image](https://user-images.githubusercontent.com/7030663/198838999-7465aea4-5f1a-4a9c-b341-426c5b0095c1.png)
+
 ## 10
+Pada node eden konfigurasi default-wise-3.conf berisi:
+``` 
+<VirtualHost *:80>
+        ServerName eden.wise.b10.com
+        ServerAlias www.eden.wise.b10.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/eden.wise.b10.com
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+Lalu copy ke dalam apache dengan ```cp /root/default-wise-3.conf /etc/apache2/sites-available/eden.wise.d05.com.conf`
+Lalu, aktifkan a2ensite, membuat direktori untuk documentroot di /var/www/eden.wise.d05.com lalu salin content ke documentroot dengan cara 
+```
+a2ensite eden.wise.b10.com
+
+mkdir /var/www/eden.wise.b10.com
+cp -r /root/modul2source-jarkom/eden.wise/. /var/www/eden.wise.b10.com
+```
+Restart apache lalu bisa di lynx dengan SSS
+![image](https://user-images.githubusercontent.com/7030663/198839030-84af3eba-f102-408c-95fb-e67ae8978b44.png)
+
 ## 11
+file default-wise-4.conf diisi dengan
+```
+<VirtualHost *:80>
+        ServerName eden.wise.d05.com
+        ServerAlias www.eden.wise.d05.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/eden.wise.d05.com
+
+        <Directory /var/www/eden.wise.d05.com>
+                Options +Indexes
+        </Directory>
+
+        <Directory /var/www/eden.wise.d05.com/error>
+                Options -Indexes
+        </Directory>
+
+        <Directory /var/www/eden.wise.d05.com/public>
+                Options +Indexes
+        </Directory>
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+Copy ke dalam /etc/apache2/sites-available/eden.wise.b10.com.conf. lalu buka dengan lynx
+![image](https://user-images.githubusercontent.com/7030663/198839045-0f0ec26f-5d86-49e2-84c3-0df9054ef78d.png)
+
 ## 12
+File default-wise-5.conf dengan menambhkan ErrorDocument 404 /error/404.html dengan isi:
+```
+<VirtualHost *:80>
+        ServerName eden.wise.b10.com
+        ServerAlias www.eden.wise.b10.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/eden.wise.b10.com
+
+        <Directory /var/www/eden.wise.b10.com>
+                Options +Indexes
+        </Directory>
+
+        <Directory /var/www/eden.wise.b10.com/public>
+                Options +Indexes
+        </Directory>
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        ErrorDocument 404 /error/404.html
+  </VirtualHost>
+  ```
+Copy file `cp /root/default-wise-5.conf /etc/apache2/sites-available/eden.wise.d05.com.conf.`
+
+Restart apache
+
+Lakukan testing pada node SSS ketika mengakses url invalid seperti lynx http://www.eden.wise.d05.com/abc
+![image](https://user-images.githubusercontent.com/7030663/198839055-803bb335-4625-43ec-9fb2-2104f1cc5a7e.png)
+
 ## Soal 13
 
 #### Loid juga meminta Franky untuk dibuatkan konfigurasi virtual host. Virtual host ini bertujuan untuk dapat mengakses file asset www.eden.wise.yyy.com/public/js menjadi www.eden.wise.yyy.com/js.
